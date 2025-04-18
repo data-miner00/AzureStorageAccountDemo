@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Functions", "Functions\Func
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Queues", "Queues\Queues.csproj", "{FBBCDC14-2026-41A1-91DE-568D59BA032D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tables", "Tables\Tables.csproj", "{DC8248B8-C447-4661-BF97-E950A3373C17}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{FBBCDC14-2026-41A1-91DE-568D59BA032D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBBCDC14-2026-41A1-91DE-568D59BA032D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FBBCDC14-2026-41A1-91DE-568D59BA032D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC8248B8-C447-4661-BF97-E950A3373C17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC8248B8-C447-4661-BF97-E950A3373C17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC8248B8-C447-4661-BF97-E950A3373C17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC8248B8-C447-4661-BF97-E950A3373C17}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
