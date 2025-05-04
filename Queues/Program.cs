@@ -2,6 +2,7 @@
 {
     using Azure.Storage.Queues;
     using Azure.Messaging;
+    using Core;
 
     internal class Program
     {
@@ -10,17 +11,13 @@
             var queueName = "myqueue-items";
             var client = new QueueServiceClient(Constants.StorageAccountConnectionString);
             var application = new Application(client, queueName);
+            var userGenerator = new UserGenerator();
 
             var queue = await application.GetQueueAsync(true);
 
             await application.SendMessageAsync("Hello World");
 
-            var user = new User
-            {
-                Name = "Shaun",
-                Age = 27,
-                Emails = ["shaun.chong@email.com", "shaun@mail.net"],
-            };
+            var user = userGenerator.GenerateAsync().GetAwaiter().GetResult();
 
             await application.SendMessageAsync(user);
 
