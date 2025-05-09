@@ -1,23 +1,22 @@
-using System;
+namespace Functions;
+
 using Azure.Storage.Queues.Models;
+using Core;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
-namespace Functions
+public class QueueTriggerFunction
 {
-    public class QueueTriggerFunction
+    private readonly ILogger<QueueTriggerFunction> _logger;
+
+    public QueueTriggerFunction(ILogger<QueueTriggerFunction> logger)
     {
-        private readonly ILogger<QueueTriggerFunction> _logger;
+        _logger = logger;
+    }
 
-        public QueueTriggerFunction(ILogger<QueueTriggerFunction> logger)
-        {
-            _logger = logger;
-        }
-
-        [Function(nameof(QueueTriggerFunction))]
-        public void Run([QueueTrigger("myqueue-items", Connection = "")] QueueMessage message)
-        {
-            _logger.LogInformation($"C# Queue trigger function processed: {message.MessageText}");
-        }
+    [Function(nameof(QueueTriggerFunction))]
+    public void Run([QueueTrigger(Constants.TestQueueName, Connection = "")] QueueMessage message)
+    {
+        _logger.LogInformation($"C# Queue trigger function processed: {message.MessageText}");
     }
 }

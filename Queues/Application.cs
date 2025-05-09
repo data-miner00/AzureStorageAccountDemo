@@ -1,129 +1,126 @@
-﻿using Azure.Storage.Queues;
+﻿namespace Queues;
+
+using Azure.Storage.Queues;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Queues
+internal sealed class Application
 {
-    internal class Application
+    private readonly QueueServiceClient client;
+    private readonly string queueName;
+
+    public Application(QueueServiceClient client, string queueName)
     {
-        private readonly QueueServiceClient client;
-        private readonly string queueName;
+        this.client = client;
+        this.queueName = queueName;
+    }
 
-        public Application(QueueServiceClient client, string queueName)
+    public async Task<QueueClient> CreateQueueAsync()
+    {
+        var response = await client.CreateQueueAsync(queueName).ConfigureAwait(false);
+
+        if (response.GetRawResponse().Status != 201)
         {
-            this.client = client;
-            this.queueName = queueName;
+            throw new InvalidOperationException($"Failed to create queue '{queueName}'.");
         }
 
-        public async Task<QueueClient> CreateQueueAsync()
+        Console.WriteLine($"Queue '{queueName}' created.");
+
+        return response.Value;
+    }
+
+    public async Task<QueueClient> GetQueueAsync(bool createIfNotExist = false)
+    {
+        var queue = client.GetQueueClient(queueName);
+
+        if (!queue.Exists())
         {
-            var response = await client.CreateQueueAsync(queueName).ConfigureAwait(false);
-
-            if (response.GetRawResponse().Status != 201)
+            if (createIfNotExist)
             {
-                throw new InvalidOperationException($"Failed to create queue '{queueName}'.");
-            }
+                var response = await queue.CreateIfNotExistsAsync().ConfigureAwait(false);
 
-            Console.WriteLine($"Queue '{queueName}' created.");
-
-            return response.Value;
-        }
-
-        public async Task<QueueClient> GetQueueAsync(bool createIfNotExist = false)
-        {
-            var queue = client.GetQueueClient(queueName);
-
-            if (!queue.Exists())
-            {
-                if (createIfNotExist)
+                if (response.Status != 201 && response.Status != 409)
                 {
-                    var response = await queue.CreateIfNotExistsAsync().ConfigureAwait(false);
-
-                    if (response.Status != 201 && response.Status != 409)
-                    {
-                        throw new InvalidOperationException($"Failed to get queue '{queueName}'.");
-                    }
+                    throw new InvalidOperationException($"Failed to get queue '{queueName}'.");
                 }
             }
-
-            Console.WriteLine($"Queue '{queueName}' retrieved.");
-            return queue;
         }
 
-        public async Task SendMessageAsync(string message)
+        Console.WriteLine($"Queue '{queueName}' retrieved.");
+        return queue;
+    }
+
+    public async Task SendMessageAsync(string message)
+    {
+        var queue = await GetQueueAsync().ConfigureAwait(false);
+        var response = await queue.SendMessageAsync(message).ConfigureAwait(false);
+        if (response.GetRawResponse().Status != 201)
         {
-            var queue = await GetQueueAsync().ConfigureAwait(false);
-            var response = await queue.SendMessageAsync(message).ConfigureAwait(false);
-            if (response.GetRawResponse().Status != 201)
-            {
-                throw new InvalidOperationException($"Failed to send message to queue '{queueName}'.");
-            }
-            Console.WriteLine($"Message sent to queue '{queueName}': {message}");
+            throw new InvalidOperationException($"Failed to send message to queue '{queueName}'.");
         }
+        Console.WriteLine($"Message sent to queue '{queueName}': {message}");
+    }
 
-        public async Task SendMessageAsync<T>(T message)
-            where T : class
+    public async Task SendMessageAsync<T>(T message)
+        where T : class
+    {
+        var queue = await GetQueueAsync().ConfigureAwait(false);
+        var response = await queue.SendMessageAsync(JsonSerializer.Serialize(message)).ConfigureAwait(false);
+        if (response.GetRawResponse().Status != 201)
         {
-            var queue = await GetQueueAsync().ConfigureAwait(false);
-            var response = await queue.SendMessageAsync(JsonSerializer.Serialize(message)).ConfigureAwait(false);
-            if (response.GetRawResponse().Status != 201)
-            {
-                throw new InvalidOperationException($"Failed to send message to queue '{queueName}'.");
-            }
-            Console.WriteLine($"Message sent to queue '{queueName}': {message}");
+            throw new InvalidOperationException($"Failed to send message to queue '{queueName}'.");
         }
+        Console.WriteLine($"Message sent to queue '{queueName}': {message}");
+    }
 
-        public async Task ConsumeAsync(int batchCount = 10)
+    public async Task ConsumeAsync(int batchCount = 10)
+    {
+        var queue = await GetQueueAsync().ConfigureAwait(false);
+        var messages = await queue.ReceiveMessagesAsync(batchCount).ConfigureAwait(false);
+        if (messages.Value.Length > 0)
         {
-            var queue = await GetQueueAsync().ConfigureAwait(false);
-            var messages = await queue.ReceiveMessagesAsync(batchCount).ConfigureAwait(false);
-            if (messages.Value.Length > 0)
+            foreach (var message in messages.Value)
             {
-                foreach (var message in messages.Value)
-                {
-                    Console.WriteLine($"Received message: {message.MessageText}");
-                    await queue.DeleteMessageAsync(message.MessageId, message.PopReceipt).ConfigureAwait(false);
-                }
-            }
-            else
-            {
-                Console.WriteLine("No messages in the queue.");
-            }
-        }
-
-        public async Task ListenAsync()
-        {
-            var queue = await GetQueueAsync().ConfigureAwait(false);
-
-            while (true)
-            {
-                var message = await queue.ReceiveMessageAsync().ConfigureAwait(false);
-
-                if (message.Value != null)
-                {
-                    Console.WriteLine($"Received message: {message.Value.MessageText}");
-                    await queue.DeleteMessageAsync(message.Value.MessageId, message.Value.PopReceipt).ConfigureAwait(false);
-                }
-
-                await Task.Delay(1000).ConfigureAwait(false);
+                Console.WriteLine($"Received message: {message.MessageText}");
+                await queue.DeleteMessageAsync(message.MessageId, message.PopReceipt).ConfigureAwait(false);
             }
         }
-
-        public async Task PeekAsync()
+        else
         {
-            var queue = await GetQueueAsync().ConfigureAwait(false);
-            var peekedMessage = await queue.PeekMessageAsync().ConfigureAwait(false);
-            if (peekedMessage.Value != null)
+            Console.WriteLine("No messages in the queue.");
+        }
+    }
+
+    public async Task ListenAsync()
+    {
+        var queue = await GetQueueAsync().ConfigureAwait(false);
+
+        while (true)
+        {
+            var message = await queue.ReceiveMessageAsync().ConfigureAwait(false);
+
+            if (message.Value != null)
             {
-                Console.WriteLine($"Peeked message: {peekedMessage.Value.MessageText}");
+                Console.WriteLine($"Received message: {message.Value.MessageText}");
+                await queue.DeleteMessageAsync(message.Value.MessageId, message.Value.PopReceipt).ConfigureAwait(false);
             }
-            else
-            {
-                Console.WriteLine("No messages in the queue.");
-            }
+
+            await Task.Delay(1000).ConfigureAwait(false);
+        }
+    }
+
+    public async Task PeekAsync()
+    {
+        var queue = await GetQueueAsync().ConfigureAwait(false);
+        var peekedMessage = await queue.PeekMessageAsync().ConfigureAwait(false);
+        if (peekedMessage.Value != null)
+        {
+            Console.WriteLine($"Peeked message: {peekedMessage.Value.MessageText}");
+        }
+        else
+        {
+            Console.WriteLine("No messages in the queue.");
         }
     }
 }

@@ -1,23 +1,18 @@
-﻿using Microsoft.AspNetCore.StaticFiles;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Blobs;
 
-namespace Blobs
+using Microsoft.AspNetCore.StaticFiles;
+
+internal static class FileExtensions
 {
-    internal static class FileExtensions
-    {
-        private static readonly FileExtensionContentTypeProvider Provider = new FileExtensionContentTypeProvider();
+    private static readonly FileExtensionContentTypeProvider Provider = new FileExtensionContentTypeProvider();
 
-        public static string GetContentType(this string fileName)
+    public static string GetContentType(this string fileName)
+    {
+        if (Provider.TryGetContentType(fileName, out var contentType))
         {
-            if (Provider.TryGetContentType(fileName, out var contentType))
-            {
-                return contentType;
-            }
-            return "application/octet-stream";
+            return contentType;
         }
+
+        return "application/octet-stream";
     }
 }
