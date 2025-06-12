@@ -21,6 +21,10 @@ public static class Program
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
+            app.UseSwaggerUI(opt =>
+            {
+                opt.SwaggerEndpoint("/openapi/v1.json", "Queue Listener API V1");
+            });
         }
 
         app.UseHttpsRedirection();
