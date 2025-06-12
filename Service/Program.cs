@@ -1,6 +1,7 @@
 namespace Service;
 
 using Azure.Storage.Queues;
+using Scalar.AspNetCore;
 using Service.Services;
 
 public static class Program
@@ -23,7 +24,14 @@ public static class Program
             app.MapOpenApi();
             app.UseSwaggerUI(opt =>
             {
-                opt.SwaggerEndpoint("/openapi/v1.json", "Queue Listener API V1");
+                opt.SwaggerEndpoint("/openapi/v1.json", "Queue Listener API V1"); // /swagger/index
+            });
+            app.MapScalarApiReference(opt => // /scalar/v1
+            {
+                opt
+                    .WithTitle("Queue Listener API V1")
+                    .WithTheme(ScalarTheme.Solarized)
+                    .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
             });
         }
 
