@@ -14,10 +14,24 @@ public static class Program
         builder.Services.AddOpenApi();
         builder.Services.AddHostedService<LogBackgroundService>();
         builder.Services.AddHostedService<QueueListenerBackgroundService>();
+        builder.Services.AddProblemDetails(opt =>
+        {
+            opt.CustomizeProblemDetails = (context) =>
+            {
+                context.ProblemDetails.Extensions.Add("additionalInfo", "hello world");
+                context.ProblemDetails.Extensions.Add("server", Environment.MachineName);
+            };
+        });
 
         builder.AddAzureQueueClient();
 
         var app = builder.Build();
+
+        if (app.Environment.IsProduction())
+        {
+            app.UseExceptionHandler();
+            app.UseHsts();
+        }
 
         if (app.Environment.IsDevelopment())
         {

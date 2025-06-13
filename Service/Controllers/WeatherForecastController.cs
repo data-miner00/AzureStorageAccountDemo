@@ -31,4 +31,10 @@ public class WeatherForecastController : ControllerBase
         })
         .ToArray();
     }
+
+    [HttpGet("error")]
+    public IActionResult GetError()
+    {
+        throw new InvalidOperationException("This is a test error.");
+    }
 }
