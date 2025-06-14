@@ -2,20 +2,26 @@
 
 using Azure.Storage.Queues;
 using Azure.Storage.Queues.Models;
+using Service.Options;
 
 public sealed class QueueListenerBackgroundService : BackgroundService
 {
     private readonly ILogger<QueueListenerBackgroundService> logger;
     private readonly QueueClient queueClient;
     private readonly TimeSpan pollingInterval;
+    private readonly TimeSpan visibilityTimeout;
+    private int maxMessagesPerBatch;
 
     public QueueListenerBackgroundService(
         ILogger<QueueListenerBackgroundService> logger,
-        QueueClient queueClient)
+        QueueClient queueClient,
+        QueueOption option)
     {
         this.logger = logger;
         this.queueClient = queueClient;
-        this.pollingInterval = TimeSpan.FromSeconds(5);
+        this.pollingInterval = TimeSpan.FromSeconds(option.PollingIntervalInSeconds);
+        this.visibilityTimeout = TimeSpan.FromSeconds(option.VisibilityTimeoutInSeconds);
+        this.maxMessagesPerBatch = option.MaxMessagesPerBatch;
     }
 
     /// <inheritdoc/>
@@ -31,8 +37,8 @@ public sealed class QueueListenerBackgroundService : BackgroundService
             try
             {
                 var messages = await this.queueClient.ReceiveMessagesAsync(
-                    maxMessages: 32,
-                    visibilityTimeout: TimeSpan.FromMinutes(1),
+                    maxMessages: this.maxMessagesPerBatch,
+                    visibilityTimeout: this.visibilityTimeout,
                     cancellationToken: stoppingToken);
 
                 if (messages.Value.Length > 0)
