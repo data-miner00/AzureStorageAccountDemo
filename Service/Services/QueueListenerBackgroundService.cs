@@ -10,7 +10,7 @@ public sealed class QueueListenerBackgroundService : BackgroundService
     private readonly QueueClient queueClient;
     private readonly TimeSpan pollingInterval;
     private readonly TimeSpan visibilityTimeout;
-    private int maxMessagesPerBatch;
+    private readonly int maxMessagesPerBatch;
 
     public QueueListenerBackgroundService(
         ILogger<QueueListenerBackgroundService> logger,
@@ -43,12 +43,7 @@ public sealed class QueueListenerBackgroundService : BackgroundService
 
                 if (messages.Value.Length > 0)
                 {
-                    var tasks = new Task[messages.Value.Length];
-
-                    for (int i = 0; i < messages.Value.Length; i++)
-                    {
-                        tasks[i] = this.ProcessMessageAsync(messages.Value[i], stoppingToken);
-                    }
+                    var tasks = messages.Value.Select(message => this.ProcessMessageAsync(message, stoppingToken));
 
                     await Task.WhenAll(tasks);
                 }
