@@ -2,6 +2,7 @@ namespace Service;
 
 using Azure.Storage.Queues;
 using Scalar.AspNetCore;
+using Service.Handler;
 using Service.Options;
 using Service.Services;
 
@@ -23,6 +24,8 @@ public static class Program
                 context.ProblemDetails.Extensions.Add("server", Environment.MachineName);
             };
         });
+
+        builder.Services.AddSingleton<WeatherHandler>();
 
         builder.AddAzureQueueClient();
 

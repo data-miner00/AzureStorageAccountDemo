@@ -2,12 +2,14 @@
 
 using Azure.Storage.Queues;
 using Azure.Storage.Queues.Models;
+using Service.Handler;
 using Service.Options;
 
 public sealed class QueueListenerBackgroundService : BackgroundService
 {
     private readonly ILogger<QueueListenerBackgroundService> logger;
     private readonly QueueClient queueClient;
+    private readonly WeatherHandler handler;
     private readonly TimeSpan pollingInterval;
     private readonly TimeSpan visibilityTimeout;
     private readonly int maxMessagesPerBatch;
@@ -15,10 +17,12 @@ public sealed class QueueListenerBackgroundService : BackgroundService
     public QueueListenerBackgroundService(
         ILogger<QueueListenerBackgroundService> logger,
         QueueClient queueClient,
-        QueueOption option)
+        QueueOption option,
+        WeatherHandler handler)
     {
         this.logger = logger;
         this.queueClient = queueClient;
+        this.handler = handler;
         this.pollingInterval = TimeSpan.FromSeconds(option.PollingIntervalInSeconds);
         this.visibilityTimeout = TimeSpan.FromSeconds(option.VisibilityTimeoutInSeconds);
         this.maxMessagesPerBatch = option.MaxMessagesPerBatch;
@@ -72,6 +76,8 @@ public sealed class QueueListenerBackgroundService : BackgroundService
         {
             this.logger.LogInformation("Processing message {MessageId}: {MessageText}", 
                 message.MessageId, message.MessageText);
+
+            await this.handler.RouteAsync(message, cancellationToken);
 
             // Delete message after successful processing
             await this.queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, cancellationToken);
