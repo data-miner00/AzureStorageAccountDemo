@@ -2,9 +2,11 @@ namespace Service;
 
 using Azure.Storage.Queues;
 using Scalar.AspNetCore;
+using Service.Attributes;
 using Service.Handler;
 using Service.Options;
 using Service.Services;
+using System.Reflection;
 
 public static class Program
 {
@@ -25,9 +27,8 @@ public static class Program
             };
         });
 
-        builder.Services.AddSingleton<WeatherHandler>();
-
         builder.AddAzureQueueClient();
+        builder.AddMessageHandlers();
 
         var app = builder.Build();
 
@@ -73,11 +74,49 @@ public static class Program
 
         var serviceClient = new QueueServiceClient(connection);
 
-        var queue = serviceClient.GetQueueClient(option.QueueName)
-            ?? throw new InvalidOperationException("Queue does not found.");
+        var typesWithAttribute = GetTypesWithHandlerAttribute();
+        var queues = new Dictionary<string, QueueClient>();
 
-        builder.Services.AddSingleton(queue);
+        foreach (var type in typesWithAttribute)
+        {
+            var handlerAttribute = type.GetCustomAttribute<HandlerAttribute>()
+                ?? throw new InvalidOperationException("Queue name not found.");
+
+            var queueName = handlerAttribute.QueueName;
+
+            if (string.IsNullOrEmpty(queueName))
+            {
+                throw new InvalidOperationException($"Handler {type.FullName} does not have a valid queue name.");
+            }
+
+            queues[queueName] = serviceClient.GetQueueClient(queueName);
+        }
+
+        builder.Services.AddSingleton(queues);
 
         return builder;
+    }
+
+    private static void AddMessageHandlers(this WebApplicationBuilder builder)
+    {
+        var typesWithAttribute = GetTypesWithHandlerAttribute();
+
+        foreach (var type in typesWithAttribute)
+        {
+            Console.WriteLine(type.FullName);
+
+            builder.Services.AddSingleton(type);
+        }
+    }
+
+    private static IEnumerable<Type> GetTypesWithHandlerAttribute()
+    {
+        var attributeType = typeof(HandlerAttribute);
+        var assembly = Assembly.GetExecutingAssembly();
+
+        var typesWithAttribute = assembly.GetTypes()
+            .Where(t => t.IsClass && t.GetCustomAttributes(attributeType, inherit: false).Length != 0);
+
+        return typesWithAttribute;
     }
 }

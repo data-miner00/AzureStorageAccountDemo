@@ -15,6 +15,7 @@ public sealed class UserGenerator
             .RuleFor(x => x.Age, f => f.Random.Int(18, 99))
             .RuleFor(x => x.Emails, f => f.Make(f.Random.Int(0, 3), () => f.Internet.Email()));
     }
+
     public Task<User> GenerateAsync()
     {
         return Task.FromResult(this.faker.Generate());

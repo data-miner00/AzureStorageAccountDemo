@@ -2,10 +2,12 @@
 
 using Azure.Storage.Queues.Models;
 
-public abstract class MessageHandler<T>
+public abstract class MessageHandler<T> : IMessageHandler
     where T : class
 {
-    internal Task RouteAsync(QueueMessage message, CancellationToken cancellationToken)
+    public abstract Task HandleAsync(object @event, CancellationToken cancellationToken);
+
+    public Task RouteAsync(QueueMessage message, CancellationToken cancellationToken)
     {
         var eventData = message.Body.ToObjectFromJson<T>();
 
@@ -16,6 +18,4 @@ public abstract class MessageHandler<T>
 
         return this.HandleAsync(eventData, cancellationToken);
     }
-
-    protected abstract Task HandleAsync(T @event, CancellationToken cancellationToken);
 }
