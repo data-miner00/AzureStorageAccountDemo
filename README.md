@@ -11,6 +11,34 @@ Demo for Azure Storage Account using Azurite.
 1. Storage to analyze later
 1. Uses virtual directory (separated by `/` in the name)
 
+### Copying across containers and folders
+
+To copy the contents of a container to another container or folder, we can use [azcopy](https://github.com/Azure/azure-storage-azcopy) command. 
+
+```bash
+azcopy copy <source-path> <destination-path> --recursive
+```
+
+Copy from local to a container: Generate the SAS token for the container and use it in the destination path.
+
+```bash
+azcopy copy "C:\local\path" "https://account.blob.core.windows.net/mycontainer1/?sv=2018-03-28&ss=bjqt&srt=sco&sp=rwddgcup&se=2019-05-01T05:01:17Z&st=2019-04-30T21:01:17Z&spr=https&sig=MGCXiyEzbtttkr3ewJIh2AR8KrghSy1DGM9ovN734bQF4%3D" --recursive=true
+```
+
+Copy from container to another container:
+
+```bash
+azcopy copy "https://account.blob.core.windows.net/mycontainer1/?sv=2018-03-28&ss=bjqt&srt=sco&sp=rwddgcup&se=2019-05-01T05:01:17Z&st=2019-04-30T21:01:17Z&spr=https&sig=MGCXiyEzbtttkr3ewJIh2AR8KrghSy1DGM9ovN734bQF4%3D" "https://account.blob.core.windows.net/mycontainer2/?sv=2018-03-28&ss=bjqt&srt=sco&sp=rwddgcup&se=2019-05-01T05:01:17Z&st=2019-04-30T21:01:17Z&spr=https&sig=MGCXiyEzbtttkr3ewJIh2AR8KrghSy1DGM9ovN734bQF4%3D" --recursive=true
+```
+
+Copy from container to a virtual folder within another container: Use `/*` to specify in the source and `/folderName` to specify the folder in the destination.
+
+```bash
+azcopy copy "https://account.blob.core.windows.net/mycontainer1/*?sv=2018-03-28&ss=bjqt&srt=sco&sp=rwddgcup&se=2019-05-01T05:01:17Z&st=2019-04-30T21:01:17Z&spr=https&sig=MGCXiyEzbtttkr3ewJIh2AR8KrghSy1DGM9ovN734bQF4%3D" "https://account.blob.core.windows.net/mycontainer2/myfolder1?sv=2018-03-28&ss=bjqt&srt=sco&sp=rwddgcup&se=2019-05-01T05:01:17Z&st=2019-04-30T21:01:17Z&spr=https&sig=MGCXiyEzbtttkr3ewJIh2AR8KrghSy1DGM9ovN734bQF4%3D" --recursive=true
+```
+
+### Security Concerns
+
 ## Queue Storage
 
 1. Store large number of messages
