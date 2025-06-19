@@ -5,7 +5,7 @@
 /// </summary>
 public sealed class LogBackgroundService : BackgroundService
 {
-    private const string ServiceName = "LogBackgroundService";
+    private const string ServiceName = nameof(LogBackgroundService);
     private const int LogIntervalSeconds = 20;
 
     private readonly ILogger<LogBackgroundService> logger;
