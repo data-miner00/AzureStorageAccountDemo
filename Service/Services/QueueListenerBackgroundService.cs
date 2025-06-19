@@ -18,7 +18,7 @@ public sealed class QueueListenerBackgroundService : BackgroundService
     private readonly TimeSpan visibilityTimeout;
     private readonly int maxMessagesPerBatch;
     private readonly IServiceScope serviceScope;
-    private readonly Dictionary<string, IMessageHandler> messageHandlers = [];
+    private readonly Dictionary<string, MessageHandler<object>> messageHandlers = [];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="QueueListenerBackgroundService"/> class.
@@ -52,13 +52,14 @@ public sealed class QueueListenerBackgroundService : BackgroundService
         foreach (var (queueName, handler) in this.messageHandlers)
         {
             var queueClient = this.queues[queueName];
-            await queueClient.CreateIfNotExistsAsync(cancellationToken: stoppingToken);
 
             if (queueClient == null)
             {
                 this.logger.LogError("Queue client for {QueueName} not found", queueName);
                 continue;
             }
+
+            await queueClient.CreateIfNotExistsAsync(cancellationToken: stoppingToken);
 
             tasks.Add(Spinlock());
 
@@ -115,7 +116,7 @@ public sealed class QueueListenerBackgroundService : BackgroundService
         return typesWithAttribute;
     }
 
-    private async Task ProcessMessageAsync(QueueMessage message, IMessageHandler handler, QueueClient queueClient, CancellationToken cancellationToken)
+    private async Task ProcessMessageAsync(QueueMessage message, MessageHandler<object> handler, QueueClient queueClient, CancellationToken cancellationToken)
     {
         try
         {
@@ -126,7 +127,6 @@ public sealed class QueueListenerBackgroundService : BackgroundService
 
             await handler.RouteAsync(message, cancellationToken);
 
-            // Delete message after successful processing
             await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, cancellationToken);
 
             this.logger.LogInformation("Successfully processed message {MessageId}", message.MessageId);
@@ -159,7 +159,7 @@ public sealed class QueueListenerBackgroundService : BackgroundService
 
             var queueName = handlerAttribute.QueueName;
 
-            this.messageHandlers[queueName] = (IMessageHandler)this.serviceScope.ServiceProvider.GetService(type)!;
+            this.messageHandlers[queueName] = (MessageHandler<object>)this.serviceScope.ServiceProvider.GetService(type)!;
         }
     }
 }
