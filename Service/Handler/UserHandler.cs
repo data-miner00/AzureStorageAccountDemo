@@ -19,7 +19,7 @@ public class UserHandler : MessageHandler<User>
     /// <param name="logger">The logger.</param>
     public UserHandler(ILogger<UserHandler> logger)
     {
-        this.logger = logger;
+        this.logger = Guard.ThrowIfNull(logger);
     }
 
     /// <inheritdoc/>

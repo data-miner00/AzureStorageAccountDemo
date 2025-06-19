@@ -1,5 +1,6 @@
 ﻿namespace Service.Services;
 
+using Core;
 using Azure.Storage.Queues;
 using Azure.Storage.Queues.Models;
 using Service.Attributes;
@@ -33,8 +34,8 @@ public sealed class QueueListenerBackgroundService : BackgroundService
         IServiceScopeFactory serviceScopeFactory,
         Dictionary<string, QueueClient> queues)
     {
-        this.logger = logger;
-        this.queues = queues;
+        this.logger = Guard.ThrowIfNull(logger);
+        this.queues = Guard.ThrowIfNull(queues);
         this.pollingInterval = TimeSpan.FromSeconds(option.PollingIntervalInSeconds);
         this.visibilityTimeout = TimeSpan.FromSeconds(option.VisibilityTimeoutInSeconds);
         this.maxMessagesPerBatch = option.MaxMessagesPerBatch;

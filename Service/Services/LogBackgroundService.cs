@@ -1,5 +1,7 @@
 ﻿namespace Service.Services;
 
+using Core;
+
 /// <summary>
 /// The background service that logs messages at regular intervals.
 /// </summary>
@@ -16,7 +18,7 @@ public sealed class LogBackgroundService : BackgroundService
     /// <param name="logger">The logger.</param>
     public LogBackgroundService(ILogger<LogBackgroundService> logger)
     {
-        this.logger = logger;
+        this.logger = Guard.ThrowIfNull(logger);
     }
 
     /// <inheritdoc/>

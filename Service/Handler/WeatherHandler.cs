@@ -1,5 +1,6 @@
 ﻿namespace Service.Handler;
 
+using Core;
 using Service.Attributes;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ public class WeatherHandler : MessageHandler<WeatherForecast>
     /// <param name="logger">The logger.</param>
     public WeatherHandler(ILogger<WeatherHandler> logger)
     {
-        this.logger = logger;
+        this.logger = Guard.ThrowIfNull(logger);
     }
 
     /// <inheritdoc/>

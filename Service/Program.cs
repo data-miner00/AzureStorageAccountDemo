@@ -3,7 +3,6 @@ namespace Service;
 using Azure.Storage.Queues;
 using Scalar.AspNetCore;
 using Service.Attributes;
-using Service.Handler;
 using Service.Options;
 using Service.Services;
 using System.Reflection;
