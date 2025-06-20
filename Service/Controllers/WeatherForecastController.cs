@@ -1,5 +1,7 @@
 namespace Service.Controllers;
 
+using Core;
+
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
