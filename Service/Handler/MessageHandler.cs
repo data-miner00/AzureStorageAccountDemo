@@ -6,15 +6,10 @@ using Azure.Storage.Queues.Models;
 /// The base class for message handlers.
 /// </summary>
 /// <typeparam name="T">The type of event being handled.</typeparam>
-public abstract class MessageHandler<T>
+public abstract class MessageHandler<T> : IMessageHandler
     where T : class
 {
-    /// <summary>
-    /// Converts the message to the object type <typeparamref name="T"/> and pass it to handler function.
-    /// </summary>
-    /// <param name="message">The queue message object.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The task.</returns>
+    /// <inheritdoc/>
     /// <exception cref="InvalidCastException">Throws when the message body fails to deserialize into <see cref="T"/>.</exception>
     public Task RouteAsync(QueueMessage message, CancellationToken cancellationToken)
     {

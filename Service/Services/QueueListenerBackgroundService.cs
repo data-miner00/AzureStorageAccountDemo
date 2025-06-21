@@ -19,7 +19,7 @@ public sealed class QueueListenerBackgroundService : BackgroundService
     private readonly TimeSpan visibilityTimeout;
     private readonly int maxMessagesPerBatch;
     private readonly IServiceScope serviceScope;
-    private readonly Dictionary<string, MessageHandler<object>> messageHandlers = [];
+    private readonly Dictionary<string, IMessageHandler> messageHandlers = [];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="QueueListenerBackgroundService"/> class.
@@ -106,18 +106,27 @@ public sealed class QueueListenerBackgroundService : BackgroundService
         this.logger.LogInformation("Queue Listener Background Service stopped");
     }
 
-    private static IEnumerable<Type> GetTypesWithHandlerAttribute()
+    private static List<Type> GetTypesWithHandlerAttribute()
     {
-        var attributeType = typeof(HandlerAttribute);
         var assembly = Assembly.GetExecutingAssembly();
-
         var typesWithAttribute = assembly.GetTypes()
-            .Where(t => t.IsClass && t.GetCustomAttributes(attributeType, inherit: false).Length != 0);
+            .Where(t => t.IsClass && IsHavingHandlerAttribute(t) && IsMessageHandler(t))
+            .ToList();
 
         return typesWithAttribute;
+
+        static bool IsHavingHandlerAttribute(Type type)
+        {
+            return type.GetCustomAttributes(typeof(HandlerAttribute), inherit: false).Length != 0;
+        }
+
+        static bool IsMessageHandler(Type type)
+        {
+            return type.BaseType!.GetGenericTypeDefinition() == typeof(MessageHandler<>);
+        }
     }
 
-    private async Task ProcessMessageAsync(QueueMessage message, MessageHandler<object> handler, QueueClient queueClient, CancellationToken cancellationToken)
+    private async Task ProcessMessageAsync(QueueMessage message, IMessageHandler handler, QueueClient queueClient, CancellationToken cancellationToken)
     {
         try
         {
@@ -160,7 +169,7 @@ public sealed class QueueListenerBackgroundService : BackgroundService
 
             var queueName = handlerAttribute.QueueName;
 
-            this.messageHandlers[queueName] = (MessageHandler<object>)this.serviceScope.ServiceProvider.GetService(type)!;
+            this.messageHandlers[queueName] = (IMessageHandler)this.serviceScope.ServiceProvider.GetService(type)!;
         }
     }
 }
