@@ -4,6 +4,7 @@ using Azure.Storage.Queues;
 using Scalar.AspNetCore;
 using Service.Attributes;
 using Service.Options;
+using Service.Publishers;
 using Service.Services;
 using System.Reflection;
 
@@ -26,6 +27,7 @@ public static class Program
             };
         });
 
+        builder.Services.AddSingleton<MessagePublisher>();
         builder.AddAzureQueueClient();
         builder.AddMessageHandlers();
 
