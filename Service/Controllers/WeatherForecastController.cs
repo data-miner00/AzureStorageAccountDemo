@@ -82,7 +82,7 @@ public sealed class WeatherForecastController : ControllerBase
     /// </summary>
     /// <param name="count">The count of the message.</param>
     /// <returns>The action result.</returns>
-    [HttpPost("publish/{count:int}")]
+    [HttpPost("publish/{count:maxCount}")]
     public async Task<IActionResult> PublishMultipleMessages(int count)
     {
         this.logger.LogInformation("Publishing {Count} weather forecast messages.", count);

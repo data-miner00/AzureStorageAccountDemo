@@ -50,7 +50,7 @@ public sealed class UserController : ControllerBase
     /// </summary>
     /// <param name="count">The number of messages.</param>
     /// <returns>The action result.</returns>
-    [HttpPost("publish/{count:int}")]
+    [HttpPost("publish/{count:maxCount}")]
     public async Task<IActionResult> PublishMultipleMessages(int count)
     {
         this.logger.LogInformation("Publishing multiple user messages.");

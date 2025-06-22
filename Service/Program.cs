@@ -3,6 +3,7 @@ namespace Service;
 using Azure.Storage.Queues;
 using Scalar.AspNetCore;
 using Service.Attributes;
+using Service.Constraints;
 using Service.Options;
 using Service.Publishers;
 using Service.Services;
@@ -30,6 +31,11 @@ public static class Program
         builder.Services.AddSingleton<MessagePublisher>();
         builder.AddAzureQueueClient();
         builder.AddMessageHandlers();
+
+        builder.Services.AddRouting(opt =>
+        {
+            opt.ConstraintMap.Add("maxCount", typeof(MaxCountConstraint));
+        });
 
         var app = builder.Build();
 
