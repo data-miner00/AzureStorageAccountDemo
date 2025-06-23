@@ -4,6 +4,7 @@ using Core;
 
 using Microsoft.AspNetCore.Mvc;
 using Service.Publishers;
+using Service.Results;
 
 /// <summary>
 /// The controller for managing weather forecasts.
@@ -98,5 +99,13 @@ public sealed class WeatherForecastController : ControllerBase
         }
 
         return this.Created();
+    }
+
+    [HttpGet("html")]
+    public async Task<IResult> GetHtml()
+    {
+        this.logger.LogInformation("Fetching HTML content.");
+        var htmlContent = "<html><body><h1>Weather Forecast</h1><p>This is a sample HTML response.</p></body></html>";
+        return new HtmlResult(htmlContent);
     }
 }
