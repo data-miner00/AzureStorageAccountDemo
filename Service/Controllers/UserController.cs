@@ -13,23 +13,24 @@ public sealed class UserController : ControllerBase
 {
     private const string QueueName = "user";
 
-    private static readonly string[] UserNames =
-    [
-        "Alice", "Bob", "Charlie", "David", "Eve"
-    ];
-
     private readonly ILogger<UserController> logger;
     private readonly MessagePublisher publisher;
+    private readonly UserGenerator userGenerator;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserController"/> class.
     /// </summary>
     /// <param name="logger">The logger.</param>
     /// <param name="publisher">The message publisher.</param>
-    public UserController(ILogger<UserController> logger, MessagePublisher publisher)
+    /// <param name="userGenerator">The user generator.</param>
+    public UserController(
+        ILogger<UserController> logger,
+        MessagePublisher publisher,
+        UserGenerator userGenerator)
     {
         this.logger = Guard.ThrowIfNull(logger);
         this.publisher = Guard.ThrowIfNull(publisher);
+        this.userGenerator = Guard.ThrowIfNull(userGenerator);
     }
 
     /// <summary>
@@ -56,12 +57,7 @@ public sealed class UserController : ControllerBase
         this.logger.LogInformation("Publishing multiple user messages.");
         for (int i = 0; i < count; i++)
         {
-            var user = new User
-            {
-                FirstName = UserNames[Random.Shared.Next(UserNames.Length)],
-                LastName = $"User{i + 1}",
-                Emails = [$"{UserNames[Random.Shared.Next(UserNames.Length)].ToLower()}@example.com"],
-            };
+            var user = await this.userGenerator.GenerateAsync();
             await this.publisher.PublishAsync(QueueName, user);
         }
 

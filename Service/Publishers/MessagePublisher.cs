@@ -39,4 +39,9 @@ public sealed class MessagePublisher
             throw new InvalidOperationException($"Queue '{queueName}' not found.");
         }
     }
+
+    public void Deconstruct(out Dictionary<string, QueueClient> queues)
+    {
+        queues = this.queues;
+    }
 }

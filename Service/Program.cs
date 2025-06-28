@@ -1,6 +1,7 @@
 namespace Service;
 
 using Azure.Storage.Queues;
+using Core;
 using Scalar.AspNetCore;
 using Service.Attributes;
 using Service.Constraints;
@@ -15,6 +16,7 @@ public static class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Services.AddSingleton<UserGenerator>();
         builder.Services.AddControllers();
         builder.Services.AddOpenApi();
         builder.Services.AddHostedService<LogBackgroundService>();
