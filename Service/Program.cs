@@ -1,5 +1,6 @@
 namespace Service;
 
+using Azure.Data.Tables;
 using Azure.Storage.Queues;
 using Core;
 using Scalar.AspNetCore;
@@ -7,7 +8,9 @@ using Service.Attributes;
 using Service.Constraints;
 using Service.Options;
 using Service.Publishers;
+using Service.Repositories;
 using Service.Services;
+using Service.TableEntities;
 using System.Reflection;
 
 public static class Program
@@ -32,7 +35,9 @@ public static class Program
 
         builder.Services.AddSingleton<MessagePublisher>();
         builder.AddAzureQueueClient();
+        builder.AddAzureTableClient();
         builder.AddMessageHandlers();
+        builder.Services.AddSingleton<IRepository<WeatherForecastEntity>, WeatherForecastEntityRepository>();
 
         builder.Services.AddRouting(opt =>
         {
@@ -127,5 +132,23 @@ public static class Program
             .Where(t => t.IsClass && t.GetCustomAttributes(attributeType, inherit: false).Length != 0);
 
         return typesWithAttribute;
+    }
+
+    private static WebApplicationBuilder AddAzureTableClient(this WebApplicationBuilder builder)
+    {
+        var connection = builder.Configuration["ConnectionStrings:Default"]
+            ?? throw new InvalidOperationException("Connection string 'Default' is not configured.");
+
+        var serviceClient = new TableServiceClient(connection);
+
+        const string tableName = "WeatherForecasts";
+
+        var tableClient = serviceClient.GetTableClient(tableName);
+
+        tableClient.CreateIfNotExists();
+
+        builder.Services.AddSingleton(tableClient);
+
+        return builder;
     }
 }
