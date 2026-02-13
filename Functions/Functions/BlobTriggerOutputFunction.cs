@@ -1,4 +1,4 @@
-namespace Functions;
+namespace Functions.Functions;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;

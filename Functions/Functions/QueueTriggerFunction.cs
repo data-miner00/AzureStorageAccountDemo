@@ -1,4 +1,4 @@
-namespace Functions;
+namespace Functions.Functions;
 
 using Azure.Storage.Queues.Models;
 using Core;
