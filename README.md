@@ -80,7 +80,7 @@ Important
 - Node.js
 - npm
 - Azurite
-- Azure Storage Explorer
+- [Azure Storage Explorer](https://github.com/microsoft/AzureStorageExplorer)
 - Azure CLI
 
 ## Todo
@@ -95,13 +95,13 @@ Important
 
 ## Links
 
-- https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=visual-studio%2Cblob-storage
-- https://learn.microsoft.com/en-us/azure/azure-functions/functions-event-grid-blob-trigger?pivots=programming-language-csharp
-- https://github.com/Azure/Azurite
+- [Use the Azurite emulator for local Azure Storage development](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=visual-studio%2Cblob-storage)
+- [Tutorial: Trigger Azure Functions on blob containers by using an event subscription](https://learn.microsoft.com/en-us/azure/azure-functions/functions-event-grid-blob-trigger?pivots=programming-language-csharp)
+- [Azurite](https://github.com/Azure/Azurite)
 - [Getting started with Azure Blob Storage in .NET Core | Azure Tutorial](https://www.youtube.com/watch?v=9ZpMpf9dNDA)
 - [A Beginners Guide to Azure Blob Storage](https://www.youtube.com/watch?v=ah1XqItWkuc)
-- https://www.youtube.com/watch?v=JQ6KhjU5Zsg
-- https://learn.microsoft.com/en-us/dotnet/api/overview/azure/data.tables-readme?view=azure-dotnet#create-an-azure-table
-- https://learn.microsoft.com/en-us/rest/api/storageservices/understanding-the-table-service-data-model#tables-entities-and-properties
-- https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/tables/Azure.Data.Tables/samples
-- https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger?tabs=python-v2%2Cin-process%2Cnodejs-v4%2Cextensionv5&pivots=programming-language-csharp
+- [Azure Queue Storage Tutorial](https://www.youtube.com/watch?v=JQ6KhjU5Zsg)
+- [Create an Azure table](https://learn.microsoft.com/en-us/dotnet/api/overview/azure/data.tables-readme?view=azure-dotnet#create-an-azure-table)
+- [Tables, Entities, and Properties](https://learn.microsoft.com/en-us/rest/api/storageservices/understanding-the-table-service-data-model#tables-entities-and-properties)
+- [Azure Data Tables samples](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/tables/Azure.Data.Tables/samples)
+- [Azure Blob storage trigger for Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger?tabs=python-v2%2Cin-process%2Cnodejs-v4%2Cextensionv5&pivots=programming-language-csharp)
