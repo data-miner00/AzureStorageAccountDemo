@@ -3,8 +3,16 @@
 using Azure.Storage.Queues;
 using Core;
 
+/// <summary>
+/// The program structure.
+/// </summary>
 internal static class Program
 {
+    /// <summary>
+    /// The entry point.
+    /// </summary>
+    /// <param name="args">The command line arguments.</param>
+    /// <returns>The asynchronous task.</returns>
     public static async Task Main(string[] args)
     {
         var client = new QueueServiceClient(Constants.StorageAccountConnectionString);
@@ -15,7 +23,7 @@ internal static class Program
 
         await application.SendMessageAsync("Hello World");
 
-        var user = userGenerator.GenerateAsync().GetAwaiter().GetResult();
+        var user = await userGenerator.GenerateAsync();
 
         await application.SendMessageAsync(user);
 

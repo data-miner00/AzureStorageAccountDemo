@@ -13,8 +13,15 @@ using Service.Services;
 using Service.TableEntities;
 using System.Reflection;
 
+/// <summary>
+/// The program definition.
+/// </summary>
 public static class Program
 {
+    /// <summary>
+    /// The entry point.
+    /// </summary>
+    /// <param name="args">The command line arguments.</param>
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);

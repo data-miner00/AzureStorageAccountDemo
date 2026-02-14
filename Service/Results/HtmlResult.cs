@@ -2,19 +2,28 @@
 
 using System.Text;
 
+/// <summary>
+/// The result object that contains HTML.
+/// </summary>
 public class HtmlResult : IResult
 {
     private readonly string html;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HtmlResult"/> class.
+    /// </summary>
+    /// <param name="html">The html string.</param>
     public HtmlResult(string html)
     {
         this.html = html;
     }
 
-    public async Task ExecuteAsync(HttpContext context)
+    /// <inheritdoc/>
+    public async Task ExecuteAsync(HttpContext httpContext)
     {
-        context.Response.ContentType = "text/html";
-        context.Response.ContentLength = Encoding.UTF8.GetByteCount(this.html);
-        await context.Response.WriteAsync(this.html);
+        ArgumentNullException.ThrowIfNull(httpContext);
+        httpContext.Response.ContentType = "text/html";
+        httpContext.Response.ContentLength = Encoding.UTF8.GetByteCount(this.html);
+        await httpContext.Response.WriteAsync(this.html);
     }
 }

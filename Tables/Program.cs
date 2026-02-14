@@ -5,16 +5,23 @@ using Azure.Data.Tables;
 using Azure.Data.Tables.Models;
 using Core;
 
+/// <summary>
+/// The program structure.
+/// </summary>
 internal static class Program
 {
+    /// <summary>
+    /// The entry point.
+    /// </summary>
+    /// <param name="args">The command line arguments.</param>
     public static void Main(string[] args)
     {
         var serviceClient = new TableServiceClient(Constants.StorageAccountConnectionString);
 
-        TableItem table = serviceClient.CreateTableIfNotExists(Constants.TestQueueName);
+        TableItem table = serviceClient.CreateTableIfNotExists(Constants.TestTableName);
         Console.WriteLine($"The created table's name is {table.Name}.");
 
-        var tableClient = serviceClient.GetTableClient(Constants.TestQueueName);
+        var tableClient = serviceClient.GetTableClient(Constants.TestTableName);
 
         string partitionKey = "user", rowKey = Guid.NewGuid().ToString();
 
@@ -22,7 +29,7 @@ internal static class Program
         {
             { "name", "John" },
             { "age", new Random().Next(100) },
-            { "email", "john@email.com" }
+            { "email", "john@email.com" },
         };
 
         tableClient.AddEntity(tableEntity);
@@ -39,12 +46,11 @@ internal static class Program
         Console.WriteLine($"The query returned {queryResultsFilter.Count()} entities.");
 
         // Using strongly typed entity
-
         var user = new User
         {
             Name = "John",
             Age = new Random().Next(100),
-            Emails = string.Join(',', ["john@email.com", "johnemail2@email.com"]),
+            Emails = string.Join(',', "john@email.com", "johnemail2@email.com"),
             PartitionKey = partitionKey,
             RowKey = Guid.NewGuid().ToString(),
         };
